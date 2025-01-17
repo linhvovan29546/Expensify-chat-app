@@ -1,10 +1,11 @@
 import { NavigationContext, useFocusEffect, useNavigation, useNavigationState } from '@react-navigation/native';
 import React, { memo, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import type { LayoutRectangle, NativeSyntheticEvent } from 'react-native';
+import { Dimensions, LayoutRectangle, NativeSyntheticEvent } from 'react-native';
 import GenericTooltip from '@components/Tooltip/GenericTooltip';
 import type { EducationalTooltipProps } from '@components/Tooltip/types';
 import measureTooltipCoordinate from './measureTooltipCoordinate';
 import { BoundsObserver } from '@react-ng/bounds-observer';
+import variables from '@styles/variables';
 type LayoutChangeEventWithTarget = NativeSyntheticEvent<{ layout: LayoutRectangle; target: HTMLElement }>;
 
 function BaseEducationalTooltip({ children, shouldRender = false, shouldHideOnNavigate = true, name, root, ...props }: EducationalTooltipProps) {
@@ -56,20 +57,37 @@ function BaseEducationalTooltip({ children, shouldRender = false, shouldHideOnNa
     const getBounds = (bounds: DOMRect): LayoutRectangle => {
         const targetElement = elementRef.current?._childNode;
 
-        if (targetElement && 'getBoundingClientRect' in targetElement) {
-            const recTarget = targetElement.getBoundingClientRect()
-            const elementAtPoint = document.elementFromPoint(bounds.x, bounds.y);
-            console.log('elementAtPoint', elementAtPoint)
-            if (elementAtPoint && 'contains' in elementAtPoint && targetElement && 'contains' in targetElement) {
-                const isElementVisible =
-                    elementAtPoint instanceof HTMLElement &&
-                    (targetElement?.contains(elementAtPoint) || elementAtPoint?.contains(targetElement));
-                setIsVisibleElement(isElementVisible)
+        // console.log('recTarget', recTarget)
+        console.log('bounds', bounds)
+        console.log('targetElement', targetElement)
+        const targetCenterX = bounds.x;
+
+        const elementAtPoint = document.elementFromPoint(targetCenterX, bounds.y + bounds.height / 2);
+        console.log('elementAtPoint', elementAtPoint)
+        if (elementAtPoint && 'contains' in elementAtPoint && targetElement && 'contains' in targetElement) {
+            // Calculate the total height available after accounting for the bottom tab and offset
+            // Check if the element's bottom is within the viewport
+            const viewportHeight = window.innerHeight; // The height of the visible viewport
+            const isBottomVisible = bounds.bottom + bounds.height <= viewportHeight; //Consider decrease viewportHeight by - padding
+
+            // console.log('isInViewport', isInViewport);
+            // const isTopVisible = bounds.top - bounds.height >= 0;
+            // console.log('isTopVisible', isTopVisible)
+            console.log('isBottomVisible', isBottomVisible)
+
+            const isInViewport = isBottomVisible;
+            console.log('isInViewport', isInViewport)
+            if (!isInViewport) {
+                setIsVisibleElement(false);
+                return;
             }
+            const isElementVisible =
+                elementAtPoint instanceof HTMLElement &&
+                (targetElement?.contains(elementAtPoint) || elementAtPoint?.contains(targetElement));
+            setIsVisibleElement(isElementVisible)
         }
 
 
-        return bounds;
     };
 
     return (
@@ -98,7 +116,8 @@ function BaseEducationalTooltip({ children, shouldRender = false, shouldHideOnNa
                     <BoundsObserver
                         enabled={shouldRender}
                         onBoundsChange={(bounds) => {
-                            updateTargetBounds(getBounds(bounds));
+                            getBounds(bounds)
+                            updateTargetBounds(bounds);
                         }}
                         ref={elementRef}
                     >

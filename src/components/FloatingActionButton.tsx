@@ -1,11 +1,11 @@
-import type {ForwardedRef} from 'react';
-import React, {forwardRef, useEffect, useRef} from 'react';
+import type { ForwardedRef } from 'react';
+import React, { forwardRef, useEffect, useRef } from 'react';
 // eslint-disable-next-line no-restricted-imports
-import type {GestureResponderEvent, Role, Text, View} from 'react-native';
-import {Platform} from 'react-native';
-import {useOnyx} from 'react-native-onyx';
-import Animated, {createAnimatedPropAdapter, Easing, interpolateColor, processColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming} from 'react-native-reanimated';
-import Svg, {Path} from 'react-native-svg';
+import type { GestureResponderEvent, Role, Text, View } from 'react-native';
+import { Platform } from 'react-native';
+import { useOnyx } from 'react-native-onyx';
+import Animated, { createAnimatedPropAdapter, Easing, interpolateColor, processColor, useAnimatedProps, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
+import Svg, { Path } from 'react-native-svg';
 import useBottomTabIsFocused from '@hooks/useBottomTabIsFocused';
 import useIsCurrentRouteHome from '@hooks/useIsCurrentRouteHome';
 import useResponsiveLayout from '@hooks/useResponsiveLayout';
@@ -15,8 +15,8 @@ import getPlatform from '@libs/getPlatform';
 import variables from '@styles/variables';
 import CONST from '@src/CONST';
 import ONYXKEYS from '@src/ONYXKEYS';
-import {PressableWithoutFeedback} from './Pressable';
-import {useProductTrainingContext} from './ProductTrainingContext';
+import { PressableWithoutFeedback } from './Pressable';
+import { useProductTrainingContext } from './ProductTrainingContext';
 import EducationalTooltip from './Tooltip/EducationalTooltip';
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
@@ -36,11 +36,11 @@ const adapter = createAnimatedPropAdapter(
     (props: AdapterProps) => {
         if (Object.keys(props).includes('fill')) {
             // eslint-disable-next-line no-param-reassign
-            props.fill = {type: 0, payload: processColor(props.fill)};
+            props.fill = { type: 0, payload: processColor(props.fill) };
         }
         if (Object.keys(props).includes('stroke')) {
             // eslint-disable-next-line no-param-reassign
-            props.stroke = {type: 0, payload: processColor(props.stroke)};
+            props.stroke = { type: 0, payload: processColor(props.stroke) };
         }
     },
     ['fill', 'stroke'],
@@ -60,18 +60,18 @@ type FloatingActionButtonProps = {
     role: Role;
 };
 
-function FloatingActionButton({onPress, isActive, accessibilityLabel, role}: FloatingActionButtonProps, ref: ForwardedRef<HTMLDivElement | View | Text>) {
-    const {success, buttonDefaultBG, textLight, textDark} = useTheme();
+function FloatingActionButton({ onPress, isActive, accessibilityLabel, role }: FloatingActionButtonProps, ref: ForwardedRef<HTMLDivElement | View | Text>) {
+    const { success, buttonDefaultBG, textLight, textDark } = useTheme();
     const styles = useThemeStyles();
     const borderRadius = styles.floatingActionButton.borderRadius;
     const fabPressable = useRef<HTMLDivElement | View | Text | null>(null);
-    const {shouldUseNarrowLayout} = useResponsiveLayout();
+    const { shouldUseNarrowLayout } = useResponsiveLayout();
     const platform = getPlatform();
     const isNarrowScreenOnWeb = shouldUseNarrowLayout && platform === CONST.PLATFORM.WEB;
     const isFocused = useBottomTabIsFocused();
-    const [isSidebarLoaded] = useOnyx(ONYXKEYS.IS_SIDEBAR_LOADED, {initialValue: false});
+    const [isSidebarLoaded] = useOnyx(ONYXKEYS.IS_SIDEBAR_LOADED, { initialValue: false });
     const isActiveRouteHome = useIsCurrentRouteHome();
-    const {renderProductTrainingTooltip, shouldShowProductTrainingTooltip, hideProductTrainingTooltip} = useProductTrainingContext(
+    const { renderProductTrainingTooltip, shouldShowProductTrainingTooltip, hideProductTrainingTooltip } = useProductTrainingContext(
         CONST.PRODUCT_TRAINING_TOOLTIP_NAMES.GLOBAL_CREATE_TOOLTIP,
         // On Home screen, We need to wait for the sidebar to load before showing the tooltip because there is the Concierge tooltip which is higher priority
         isFocused && (!isActiveRouteHome || isSidebarLoaded),
@@ -92,7 +92,7 @@ function FloatingActionButton({onPress, isActive, accessibilityLabel, role}: Flo
         const backgroundColor = interpolateColor(sharedValue.get(), [0, 1], [success, buttonDefaultBG]);
 
         return {
-            transform: [{rotate: `${sharedValue.get() * 135}deg`}],
+            transform: [{ rotate: `${sharedValue.get() * 135}deg` }],
             backgroundColor,
             borderRadius,
         };
@@ -139,7 +139,7 @@ function FloatingActionButton({onPress, isActive, accessibilityLabel, role}: Flo
                 style={[styles.h100, styles.bottomTabBarItem]}
                 accessibilityLabel={accessibilityLabel}
                 onPress={toggleFabAction}
-                onLongPress={() => {}}
+                onLongPress={() => { }}
                 role={role}
                 shouldUseHapticsOnLongPress={false}
             >

@@ -1,17 +1,17 @@
-import {useFocusEffect} from '@react-navigation/native';
-import React, {useCallback, useMemo, useRef, useState} from 'react';
-import type {GestureResponderEvent, ViewStyle} from 'react-native';
-import {StyleSheet, View} from 'react-native';
-import {useOnyx} from 'react-native-onyx';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
+import type { GestureResponderEvent, ViewStyle } from 'react-native';
+import { StyleSheet, View } from 'react-native';
+import { useOnyx } from 'react-native-onyx';
 import DisplayNames from '@components/DisplayNames';
 import Hoverable from '@components/Hoverable';
 import Icon from '@components/Icon';
 import * as Expensicons from '@components/Icon/Expensicons';
 import MultipleAvatars from '@components/MultipleAvatars';
 import OfflineWithFeedback from '@components/OfflineWithFeedback';
-import {useSession} from '@components/OnyxProvider';
+import { useSession } from '@components/OnyxProvider';
 import PressableWithSecondaryInteraction from '@components/PressableWithSecondaryInteraction';
-import {useProductTrainingContext} from '@components/ProductTrainingContext';
+import { useProductTrainingContext } from '@components/ProductTrainingContext';
 import SubscriptAvatar from '@components/SubscriptAvatar';
 import Text from '@components/Text';
 import Tooltip from '@components/Tooltip';
@@ -35,16 +35,16 @@ import variables from '@styles/variables';
 import Timing from '@userActions/Timing';
 import CONST from '@src/CONST';
 import ONYXKEYS from '@src/ONYXKEYS';
-import {isEmptyObject} from '@src/types/utils/EmptyObject';
-import type {OptionRowLHNProps} from './types';
+import { isEmptyObject } from '@src/types/utils/EmptyObject';
+import type { OptionRowLHNProps } from './types';
 
-function OptionRowLHN({reportID, isFocused = false, onSelectRow = () => {}, optionItem, viewMode = 'default', style, onLayout = () => {}, hasDraftComment}: OptionRowLHNProps) {
+function OptionRowLHN({ reportID, isFocused = false, onSelectRow = () => { }, optionItem, viewMode = 'default', style, onLayout = () => { }, hasDraftComment }: OptionRowLHNProps) {
     const theme = useTheme();
     const styles = useThemeStyles();
     const popoverAnchor = useRef<View>(null);
     const StyleUtils = useStyleUtils();
     const [isScreenFocused, setIsScreenFocused] = useState(false);
-    const {shouldUseNarrowLayout} = useResponsiveLayout();
+    const { shouldUseNarrowLayout } = useResponsiveLayout();
 
     // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
     const [report] = useOnyx(`${ONYXKEYS.COLLECTION.REPORT}${optionItem?.reportID || -1}`);
@@ -56,18 +56,18 @@ function OptionRowLHN({reportID, isFocused = false, onSelectRow = () => {}, opti
     const shouldShowGetStartedTooltip = isOnboardingGuideAssigned ? ReportUtils.isAdminRoom(report) : ReportUtils.isConciergeChatReport(report);
     const isActiveRouteHome = useIsCurrentRouteHome();
 
-    const {tooltipToRender, shouldShowTooltip} = useMemo(() => {
+    const { tooltipToRender, shouldShowTooltip } = useMemo(() => {
         const tooltip = shouldShowGetStartedTooltip ? CONST.PRODUCT_TRAINING_TOOLTIP_NAMES.CONCEIRGE_LHN_GBR : CONST.PRODUCT_TRAINING_TOOLTIP_NAMES.LHN_WORKSPACE_CHAT_TOOLTIP;
         const shouldShowTooltips = shouldShowWokspaceChatTooltip || shouldShowGetStartedTooltip;
         const shouldTooltipBeVisible = shouldUseNarrowLayout ? isScreenFocused && isActiveRouteHome : isActiveRouteHome;
 
         // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-        return {tooltipToRender: tooltip, shouldShowTooltip: shouldShowTooltips && shouldTooltipBeVisible};
+        return { tooltipToRender: tooltip, shouldShowTooltip: shouldShowTooltips && shouldTooltipBeVisible };
     }, [shouldShowGetStartedTooltip, shouldShowWokspaceChatTooltip, isScreenFocused, shouldUseNarrowLayout, isActiveRouteHome]);
 
-    const {shouldShowProductTrainingTooltip, renderProductTrainingTooltip, hideProductTrainingTooltip} = useProductTrainingContext(tooltipToRender, shouldShowTooltip);
+    const { shouldShowProductTrainingTooltip, renderProductTrainingTooltip, hideProductTrainingTooltip } = useProductTrainingContext(tooltipToRender, shouldShowTooltip);
 
-    const {translate} = useLocalize();
+    const { translate } = useLocalize();
     const [isContextMenuActive, setIsContextMenuActive] = useState(false);
 
     useFocusEffect(
@@ -136,7 +136,7 @@ function OptionRowLHN({reportID, isFocused = false, onSelectRow = () => {}, opti
             '-1',
             reportID,
             undefined,
-            () => {},
+            () => { },
             () => setIsContextMenuActive(false),
             false,
             false,
@@ -154,7 +154,8 @@ function OptionRowLHN({reportID, isFocused = false, onSelectRow = () => {}, opti
 
     const subscriptAvatarBorderColor = isFocused ? focusedBackgroundColor : theme.sidebar;
     const firstIcon = optionItem.icons?.at(0);
-
+    // '2143162032621493'
+    // '783804708180170'
     return (
         <OfflineWithFeedback
             pendingAction={optionItem.pendingAction}
@@ -164,14 +165,14 @@ function OptionRowLHN({reportID, isFocused = false, onSelectRow = () => {}, opti
         >
             <EducationalTooltip
                 // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-                shouldRender={shouldShowProductTrainingTooltip}
+                shouldRender={report?.reportID === '783804708180170'}
                 renderTooltipContent={renderProductTrainingTooltip}
                 anchorAlignment={{
-                    horizontal: shouldShowWokspaceChatTooltip ? CONST.MODAL.ANCHOR_ORIGIN_HORIZONTAL.LEFT : CONST.MODAL.ANCHOR_ORIGIN_HORIZONTAL.RIGHT,
+                    horizontal: report?.reportID === '783804708180170' ? CONST.MODAL.ANCHOR_ORIGIN_HORIZONTAL.LEFT : CONST.MODAL.ANCHOR_ORIGIN_HORIZONTAL.RIGHT,
                     vertical: CONST.MODAL.ANCHOR_ORIGIN_VERTICAL.TOP,
                 }}
-                shiftHorizontal={shouldShowWokspaceChatTooltip ? variables.workspaceLHNtooltipShiftHorizontal : variables.gbrTooltipShiftHorizontal}
-                shiftVertical={shouldShowWokspaceChatTooltip ? 0 : variables.composerTooltipShiftVertical}
+                shiftHorizontal={report?.reportID === '783804708180170' ? variables.workspaceLHNtooltipShiftHorizontal : variables.gbrTooltipShiftHorizontal}
+                shiftVertical={report?.reportID === '783804708180170' ? 0 : variables.composerTooltipShiftVertical}
                 wrapperStyle={styles.productTrainingTooltipWrapper}
             >
                 <View>
