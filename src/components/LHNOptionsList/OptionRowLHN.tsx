@@ -165,15 +165,17 @@ function OptionRowLHN({ reportID, isFocused = false, onSelectRow = () => { }, op
         >
             <EducationalTooltip
                 // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
-                shouldRender={report?.reportID === '783804708180170'}
+                shouldRender={shouldShowProductTrainingTooltip}
                 renderTooltipContent={renderProductTrainingTooltip}
                 anchorAlignment={{
-                    horizontal: report?.reportID === '783804708180170' ? CONST.MODAL.ANCHOR_ORIGIN_HORIZONTAL.LEFT : CONST.MODAL.ANCHOR_ORIGIN_HORIZONTAL.RIGHT,
+                    horizontal: shouldShowProductTrainingTooltip ? CONST.MODAL.ANCHOR_ORIGIN_HORIZONTAL.LEFT : CONST.MODAL.ANCHOR_ORIGIN_HORIZONTAL.RIGHT,
                     vertical: CONST.MODAL.ANCHOR_ORIGIN_VERTICAL.TOP,
                 }}
-                shiftHorizontal={report?.reportID === '783804708180170' ? variables.workspaceLHNtooltipShiftHorizontal : variables.gbrTooltipShiftHorizontal}
-                shiftVertical={report?.reportID === '783804708180170' ? 0 : variables.composerTooltipShiftVertical}
+                shiftHorizontal={shouldShowProductTrainingTooltip ? variables.workspaceLHNtooltipShiftHorizontal : variables.gbrTooltipShiftHorizontal}
+                shiftVertical={shouldShowProductTrainingTooltip ? 0 : variables.composerTooltipShiftVertical}
                 wrapperStyle={styles.productTrainingTooltipWrapper}
+                shouldCheckBottomVisible
+
             >
                 <View>
                     <Hoverable>

@@ -5,10 +5,10 @@ import GenericTooltip from '@components/Tooltip/GenericTooltip';
 import type { EducationalTooltipProps } from '@components/Tooltip/types';
 import measureTooltipCoordinate from './measureTooltipCoordinate';
 import { BoundsObserver } from '@react-ng/bounds-observer';
-import variables from '@styles/variables';
+
 type LayoutChangeEventWithTarget = NativeSyntheticEvent<{ layout: LayoutRectangle; target: HTMLElement }>;
 
-function BaseEducationalTooltip({ children, shouldRender = false, shouldHideOnNavigate = true, name, root, ...props }: EducationalTooltipProps) {
+function BaseEducationalTooltip({ children, shouldRender = false, shouldHideOnNavigate = true, shouldCheckBottomVisible, root, ...props }: EducationalTooltipProps) {
     const hideTooltipRef = useRef<() => void>();
     const [shouldMeasure, setShouldMeasure] = useState(false);
     const [isVisibleElement, setIsVisibleElement] = useState(false);
@@ -54,25 +54,26 @@ function BaseEducationalTooltip({ children, shouldRender = false, shouldHideOnNa
     }, [navigator, shouldHideOnNavigate]);
     const elementRef = useRef();
 
-    const getBounds = (bounds: DOMRect): LayoutRectangle => {
+    const getBounds = (bounds: DOMRect) => {
         const targetElement = elementRef.current?._childNode;
-
-        // console.log('recTarget', recTarget)
-        console.log('bounds', bounds)
-        console.log('targetElement', targetElement)
         const targetCenterX = bounds.x;
 
         const elementAtPoint = document.elementFromPoint(targetCenterX, bounds.y + bounds.height / 2);//Consider increase x by + padding
         if (elementAtPoint && 'contains' in elementAtPoint && targetElement && 'contains' in targetElement) {
             // Calculate the total height available after accounting for the bottom tab and offset
             // Check if the element's bottom is within the viewport
-            const viewportHeight = window.innerHeight; // The height of the visible viewport
-            const isBottomVisible = bounds.bottom + bounds.height <= viewportHeight; //Consider decrease viewportHeight by - padding
 
-            const isInViewport = isBottomVisible;
-            if (!isInViewport) {
-                setIsVisibleElement(false);
-                return;
+
+
+            if (shouldCheckBottomVisible) {
+                const viewportHeight = window.innerHeight; // The height of the visible viewport
+                const isBottomVisible = bounds.bottom + bounds.height <= viewportHeight; //Consider decrease viewportHeight by - padding
+                const isInViewport = isBottomVisible;
+                if (!isInViewport) {
+                    setIsVisibleElement(false);
+                    return
+                }
+
             }
             // Hide tooltip if the content not visible in viewport
             const isElementVisible =
