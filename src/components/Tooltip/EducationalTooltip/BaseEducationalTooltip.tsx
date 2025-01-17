@@ -62,25 +62,19 @@ function BaseEducationalTooltip({ children, shouldRender = false, shouldHideOnNa
         console.log('targetElement', targetElement)
         const targetCenterX = bounds.x;
 
-        const elementAtPoint = document.elementFromPoint(targetCenterX, bounds.y + bounds.height / 2);
-        console.log('elementAtPoint', elementAtPoint)
+        const elementAtPoint = document.elementFromPoint(targetCenterX, bounds.y + bounds.height / 2);//Consider increase x by + padding
         if (elementAtPoint && 'contains' in elementAtPoint && targetElement && 'contains' in targetElement) {
             // Calculate the total height available after accounting for the bottom tab and offset
             // Check if the element's bottom is within the viewport
             const viewportHeight = window.innerHeight; // The height of the visible viewport
             const isBottomVisible = bounds.bottom + bounds.height <= viewportHeight; //Consider decrease viewportHeight by - padding
 
-            // console.log('isInViewport', isInViewport);
-            // const isTopVisible = bounds.top - bounds.height >= 0;
-            // console.log('isTopVisible', isTopVisible)
-            console.log('isBottomVisible', isBottomVisible)
-
             const isInViewport = isBottomVisible;
-            console.log('isInViewport', isInViewport)
             if (!isInViewport) {
                 setIsVisibleElement(false);
                 return;
             }
+            // Hide tooltip if the content not visible in viewport
             const isElementVisible =
                 elementAtPoint instanceof HTMLElement &&
                 (targetElement?.contains(elementAtPoint) || elementAtPoint?.contains(targetElement));
