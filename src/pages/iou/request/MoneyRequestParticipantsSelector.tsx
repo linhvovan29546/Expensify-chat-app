@@ -114,7 +114,8 @@ function MoneyRequestParticipantsSelector({
         shouldInitialize: didScreenTransitionEnd,
     });
     const [contacts, setContacts] = useState<Array<SearchOption<PersonalDetails>>>([]);
-    const [textInputAutoFocus, setTextInputAutoFocus] = useState(false);
+    // const [textInputAutoFocus, setTextInputAutoFocus] = useState(false);
+    const [textInputAutoFocus, setTextInputAutoFocus] = useState<boolean>((isNative && canUseNativeContactImport) ? false  : true);
     const cleanSearchTerm = useMemo(() => debouncedSearchTerm.trim().toLowerCase(), [debouncedSearchTerm]);
     const offlineMessage: string = isOffline ? `${translate('common.youAppearToBeOffline')} ${translate('search.resultsAreLimited')}` : '';
 
@@ -587,7 +588,12 @@ function MoneyRequestParticipantsSelector({
             {!!canUseNativeContactImport && (
                 <ContactPermissionModal
                     onGrant={initiateContactImportAndSetState}
-                    onDeny={setContactPermissionState}
+                    onDeny={(status)=>{
+                        setContactPermissionState(status);
+                        // Need to testing inside runAfterInteractions
+                        setTextInputAutoFocus(true)
+                    }}
+                    onFocusTextInput={() => setTextInputAutoFocus(true)}
                 />
             )}
             <SelectionList
