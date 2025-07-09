@@ -36,6 +36,13 @@ class MainApplication : MultiDexApplication(), ReactApplication {
     var prevState: String = "inactive"
         private set
 
+    private fun updateState(newState: String) {
+        if (newState != currentState) {
+            prevState = currentState
+            currentState = newState
+        }
+    }
+
     override val reactNativeHost: ReactNativeHost = ReactNativeHostWrapper(this, object : DefaultReactNativeHost(this) {
         override fun getUseDeveloperSupport() = BuildConfig.DEBUG
 
@@ -74,26 +81,28 @@ class MainApplication : MultiDexApplication(), ReactApplication {
         }
 
         registerActivityLifecycleCallbacks(object: ActivityLifecycleCallbacks {
+            private var activityReferences = 0
+            private var isActivityChangingConfigurations = false
+
             override fun onActivityStarted(p0: Activity) {
-                prevState = currentState
-                currentState = "active"
+                if (++activityReferences == 1 && !isActivityChangingConfigurations) {
+                    // App enters foreground
+                    updateState("active")
+                }
             }
 
             override fun onActivityStopped(p0: Activity) {
-                val isOnForeground = isAppOnForeground()
-                prevState = currentState
-                currentState = if (isOnForeground) "active" else "background"
-            }
-
-            override fun onActivityDestroyed(p0: Activity) {
-                val isOnForeground = isAppOnForeground()
-                prevState = currentState
-                currentState = if (isOnForeground) "active" else "background"
+                isActivityChangingConfigurations = p0.isChangingConfigurations
+                if (--activityReferences == 0 && !isActivityChangingConfigurations) {
+                    // App enters background
+                    updateState("background")
+                }
             }
 
             override fun onActivityCreated(p0: Activity, p1: Bundle?) {}
             override fun onActivityResumed(p0: Activity) {}
             override fun onActivityPaused(p0: Activity) {}
+            override fun onActivityDestroyed(p0: Activity) {}
             override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {}
         })
 
