@@ -3682,10 +3682,6 @@ function doneCheckingPublicRoom() {
     Onyx.set(ONYXKEYS.IS_CHECKING_PUBLIC_ROOM, false);
 }
 
-function getCurrentUserAccountID(): number {
-    return deprecatedCurrentUserAccountID;
-}
-
 function navigateToMostRecentReport(currentReport: OnyxEntry<Report>) {
     const lastAccessedReportID = findLastAccessedReport(false, false, undefined, currentReport?.reportID)?.reportID;
 
@@ -6460,7 +6456,6 @@ export {
     exportReportToPDF,
     exportToIntegration,
     flagComment,
-    getCurrentUserAccountID,
     getMostRecentReportID,
     getNewerActions,
     getOlderActions,

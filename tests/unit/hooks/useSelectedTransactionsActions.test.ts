@@ -39,7 +39,6 @@ jest.mock('@libs/actions/MergeTransaction', () => ({
 
 jest.mock('@libs/actions/Report', () => ({
     exportReportToCSV: jest.fn(),
-    getCurrentUserAccountID: jest.fn(() => 1),
     getCurrentUserEmail: jest.fn(() => 'test@example.com'),
 }));
 
