@@ -17,7 +17,6 @@ import type Credentials from '@src/types/onyx/Credentials';
 import type Response from '@src/types/onyx/Response';
 import type Session from '@src/types/onyx/Session';
 import {confirmReadyToOpenApp, openApp} from './App';
-import {getCurrentUserAccountID} from './Report';
 import updateSessionAuthTokens from './Session/updateSessionAuthTokens';
 import updateSessionUser from './Session/updateSessionUser';
 
@@ -51,6 +50,10 @@ type WithCredentials = {
 
 type WithEmail = {
     email: string;
+};
+
+type WithAccountID = {
+    currentUserAccountID: number;
 };
 
 type WithRole = {
@@ -107,7 +110,7 @@ type UpdateDelegateRoleParams = WithEmail & WithRole & WithValidateCode & WithDe
 type IsConnectedAsDelegateParams = WithDelegatedAccess;
 
 // Connect as delegate
-type ConnectParams = WithEmail & WithDelegatedAccess & WithOldDotFlag & WithCredentials & WithSession & WithActivePolicyID;
+type ConnectParams = WithEmail & WithAccountID & WithDelegatedAccess & WithOldDotFlag & WithCredentials & WithSession & WithActivePolicyID;
 
 // Clear pending action for role update
 type ClearDelegateRolePendingActionParams = WithEmail & WithDelegatedAccess;
@@ -116,16 +119,13 @@ type ClearDelegateRolePendingActionParams = WithEmail & WithDelegatedAccess;
  * Connects the user as a delegate to another account.
  * Returns a Promise that resolves to true on success, false on failure, or undefined if not applicable.
  */
-function connect({email, delegatedAccess, credentials, session, activePolicyID, isFromOldDot = false}: ConnectParams) {
+function connect({email, currentUserAccountID, delegatedAccess, credentials, session, activePolicyID, isFromOldDot = false}: ConnectParams) {
     if (!delegatedAccess?.delegators && !isFromOldDot) {
         return;
     }
 
     Onyx.set(ONYXKEYS.STASHED_CREDENTIALS, credentials ?? {});
     Onyx.set(ONYXKEYS.STASHED_SESSION, session ?? {});
-
-    const previousAccountID = getCurrentUserAccountID();
-
     const optimisticData: Array<OnyxUpdate<typeof ONYXKEYS.ACCOUNT>> = [
         {
             onyxMethod: Onyx.METHOD.MERGE,
@@ -204,11 +204,13 @@ function connect({email, delegatedAccess, credentials, session, activePolicyID, 
                         if (!CONFIG.IS_HYBRID_APP || !policyID) {
                             return true;
                         }
+                        console.log('🚀 ~ connect ~ switchAccount:', currentUserAccountID);
+
                         HybridAppModule.switchAccount({
                             newDotCurrentAccountEmail: email,
                             authToken: restrictedToken,
                             policyID,
-                            accountID: String(previousAccountID),
+                            accountID: String(currentUserAccountID),
                         });
                         return true;
                     });
