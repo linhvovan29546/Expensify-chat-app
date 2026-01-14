@@ -477,7 +477,7 @@ describe('canSubmitReport', () => {
 
         await Onyx.merge(`${ONYXKEYS.COLLECTION.TRANSACTION}${transactionIDWithViolation}`, transactionWithViolation);
         await Onyx.merge(`${ONYXKEYS.COLLECTION.TRANSACTION}${transactionIDWithoutViolation}`, transactionWithoutViolation);
-        expect(canSubmitReport(expenseReport, fakePolicy, [transactionWithViolation, transactionWithoutViolation], violations, false, '', 0)).toBe(true);
+        expect(canSubmitReport(expenseReport, fakePolicy, [transactionWithViolation, transactionWithoutViolation], violations, false, '', currentUserAccountID)).toBe(true);
     });
 
     test('Return true if report can be submitted after being reopened', async () => {
@@ -541,7 +541,7 @@ describe('canSubmitReport', () => {
 
         await Onyx.merge(`${ONYXKEYS.COLLECTION.TRANSACTION}${transactionIDWithViolation}`, transactionWithViolation);
         await Onyx.merge(`${ONYXKEYS.COLLECTION.TRANSACTION}${transactionIDWithoutViolation}`, transactionWithoutViolation);
-        expect(canSubmitReport(expenseReport, fakePolicy, [transactionWithViolation, transactionWithoutViolation], violations, false, '', 0)).toBe(true);
+        expect(canSubmitReport(expenseReport, fakePolicy, [transactionWithViolation, transactionWithoutViolation], violations, false, '', currentUserAccountID)).toBe(true);
     });
 
     test('Return false if report can not be submitted', async () => {
@@ -560,7 +560,7 @@ describe('canSubmitReport', () => {
             policyID: fakePolicy.id,
         };
 
-        expect(canSubmitReport(expenseReport, fakePolicy, [], undefined, false, '', 0)).toBe(false);
+        expect(canSubmitReport(expenseReport, fakePolicy, [], undefined, false, '', currentUserAccountID)).toBe(false);
     });
 
     it('returns false if the report is archived', async () => {
@@ -585,7 +585,7 @@ describe('canSubmitReport', () => {
 
         // Simulate how components call canModifyTask() by using the hook useReportIsArchived() to see if the report is archived
         const {result: isReportArchived} = renderHook(() => useReportIsArchived(report?.reportID));
-        expect(canSubmitReport(report, policy, [], undefined, isReportArchived.current, '', 0)).toBe(false);
+        expect(canSubmitReport(report, policy, [], undefined, isReportArchived.current, '', currentUserAccountID)).toBe(false);
     });
 });
 
