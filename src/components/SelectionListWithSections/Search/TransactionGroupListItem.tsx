@@ -111,7 +111,7 @@ function TransactionGroupListItem<TItem extends ListItem>({
         const [sectionData] = getSections({
             type: CONST.SEARCH.DATA_TYPES.EXPENSE,
             data: transactionsSnapshot?.data,
-            currentAccountID: accountID,
+            currentAccountID: currentUserDetails.accountID,
             currentUserEmail: currentUserDetails.email ?? '',
             translate,
             formatPhoneNumber,
@@ -125,7 +125,6 @@ function TransactionGroupListItem<TItem extends ListItem>({
     }, [
         isExpenseReportType,
         transactionsSnapshot?.data,
-        accountID,
         translate,
         formatPhoneNumber,
         groupItem.transactions,
@@ -133,6 +132,7 @@ function TransactionGroupListItem<TItem extends ListItem>({
         currentUserDetails.email,
         isActionLoadingSet,
         bankAccountList,
+        currentUserDetails.accountID,
     ]);
 
     const selectedItemsLength = useMemo(() => {
