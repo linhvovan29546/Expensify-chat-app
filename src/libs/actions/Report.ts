@@ -4973,6 +4973,7 @@ function clearDeleteTransactionNavigateBackUrl() {
 function deleteAppReport(
     reportID: string | undefined,
     currentUserEmailParam: string,
+    currentUserAccountID: number,
     reportTransactions: Record<string, Transaction>,
     transactionsViolations: Record<string, TransactionViolations>,
     bankAccountList: OnyxEntry<BankAccountList>,
@@ -5314,7 +5315,7 @@ function deleteAppReport(
         optimisticData.push({
             onyxMethod: Onyx.METHOD.MERGE,
             key: `${ONYXKEYS.COLLECTION.REPORT}${report?.parentReportID}`,
-            value: {hasOutstandingChildRequest: hasOutstandingChildRequest(chatReport, report?.reportID, currentUserEmailParam, bankAccountList)},
+            value: {hasOutstandingChildRequest: hasOutstandingChildRequest(chatReport, report?.reportID, currentUserEmailParam, currentUserAccountID, bankAccountList)},
         });
     }
 

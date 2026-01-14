@@ -50,7 +50,6 @@ import type {OnyxData} from '@src/types/onyx/Request';
 import type {WaypointCollection} from '@src/types/onyx/Transaction';
 import type TransactionState from '@src/types/utils/TransactionStateType';
 import {getPolicyTagsData} from './Policy/Tag';
-import {getCurrentUserAccountID} from './Report';
 
 const allTransactions: OnyxCollection<Transaction> = {};
 Onyx.connect({
@@ -692,7 +691,7 @@ function setTransactionReport(transactionID: string, transaction: Partial<Transa
 function changeTransactionsReport(
     transactionIDs: string[],
     isASAPSubmitBetaEnabled: boolean,
-    accountID: number,
+    currentUserAccountID: number,
     email: string,
     newReport?: OnyxEntry<Report>,
     policy?: OnyxEntry<Policy>,
@@ -737,7 +736,6 @@ function changeTransactionsReport(
     const existingSelfDMReportID = findSelfDMReportID();
     let selfDMReport: Report | undefined;
     let selfDMCreatedReportAction: ReportAction | undefined;
-    const currentUserAccountID = getCurrentUserAccountID();
 
     if (!existingSelfDMReportID && reportID === CONST.REPORT.UNREPORTED_REPORT_ID) {
         const currentTime = DateUtils.getDBTime();
@@ -1362,7 +1360,7 @@ function changeTransactionsReport(
 
         const predictedNextStatus = updatedReport.statusNum ?? CONST.REPORT.STATUS_NUM.OPEN;
 
-        const hasViolations = hasViolationsReportUtils(updatedReport.reportID, allTransactionViolation, accountID, email ?? '');
+        const hasViolations = hasViolationsReportUtils(updatedReport.reportID, allTransactionViolation, currentUserAccountID, email ?? '');
         const isDestinationReport = affectedReportID === destinationReportID;
         const shouldFixViolationsForReport = isDestinationReport ? shouldFixViolations : false;
         const shouldUseUnreportedNextStepKey = reportID === CONST.REPORT.UNREPORTED_REPORT_ID && isDestinationReport;
@@ -1372,7 +1370,7 @@ function changeTransactionsReport(
         const optimisticNextStepForCollection = buildNextStepNew({
             report: updatedReport,
             policy,
-            currentUserAccountIDParam: accountID,
+            currentUserAccountIDParam: currentUserAccountID,
             currentUserEmailParam: email,
             hasViolations,
             isASAPSubmitBetaEnabled,
@@ -1382,7 +1380,7 @@ function changeTransactionsReport(
         const optimisticNextStepForReport = buildOptimisticNextStep({
             report: updatedReport,
             policy,
-            currentUserAccountIDParam: accountID,
+            currentUserAccountIDParam: currentUserAccountID,
             currentUserEmailParam: email,
             hasViolations,
             isASAPSubmitBetaEnabled,

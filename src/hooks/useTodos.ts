@@ -48,7 +48,7 @@ export default function useTodos() {
             if (isSubmitAction(report, reportTransactions, policy, reportNameValuePair)) {
                 reportsToSubmit.push(report);
             }
-            if (isApproveAction(report, reportTransactions, policy)) {
+            if (isApproveAction(report, reportTransactions, accountID, policy)) {
                 reportsToApprove.push(report);
             }
             if (isPrimaryPayAction(report, accountID, login, bankAccountList, policy, reportNameValuePair)) {
