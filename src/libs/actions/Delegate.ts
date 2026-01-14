@@ -204,7 +204,6 @@ function connect({email, currentUserAccountID, delegatedAccess, credentials, ses
                         if (!CONFIG.IS_HYBRID_APP || !policyID) {
                             return true;
                         }
-                        console.log('🚀 ~ connect ~ switchAccount:', currentUserAccountID);
 
                         HybridAppModule.switchAccount({
                             newDotCurrentAccountEmail: email,
