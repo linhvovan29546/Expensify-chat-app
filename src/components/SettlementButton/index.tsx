@@ -185,7 +185,7 @@ function SettlementButton({
         return formattedPaymentMethods.filter((ba) => (ba.accountData as AccountData)?.type === CONST.BANK_ACCOUNT.TYPE.PERSONAL);
     }
 
-    function checkForNecessaryAction() {
+    const checkForNecessaryAction = () => {
         if (isDelegateAccessRestricted) {
             showDelegateNoAccessModal();
             return true;
@@ -207,9 +207,9 @@ function SettlementButton({
         }
 
         return false;
-    }
+    };
 
-    function getPaymentSubItems(payAsBusiness: boolean) {
+    const getPaymentSubItems = (payAsBusiness: boolean) => {
         const requiredAccountType = payAsBusiness ? CONST.BANK_ACCOUNT.TYPE.BUSINESS : CONST.BANK_ACCOUNT.TYPE.PERSONAL;
 
         return formattedPaymentMethods
@@ -234,12 +234,12 @@ function SettlementButton({
                 iconWidth: formattedPaymentMethod?.iconSize,
                 value: CONST.IOU.PAYMENT_TYPE.EXPENSIFY,
             }));
-    }
+    };
 
     const personalBankAccountList = getLatestPersonalBankAccount();
     const latestBankItem = getLatestBankAccountItem();
 
-    const paymentButtonOptions = (() => {
+    const buildPaymentButtonOptions = () => {
         const buttonOptions: Array<DropdownOption<string>> = [];
 
         const shortFormPayElsewhereButton = {
@@ -413,7 +413,9 @@ function SettlementButton({
         }
 
         return buttonOptions;
-    })();
+    };
+
+    const paymentButtonOptions = buildPaymentButtonOptions();
 
     const selectPaymentType = (event: KYCFlowEvent, iouPaymentType: PaymentMethodType) => {
         if (iouPaymentType === CONST.IOU.REPORT_ACTION_TYPE.APPROVE) {
