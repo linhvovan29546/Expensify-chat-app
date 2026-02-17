@@ -16,7 +16,7 @@ import CONST from '@src/CONST';
 import IntlStore from '@src/languages/IntlStore';
 import ONYXKEYS from '@src/ONYXKEYS';
 import ROUTES from '@src/ROUTES';
-import type {BankAccountList, LastPaymentMethod, Policy, Report} from '@src/types/onyx';
+import type {BankAccountList, Beta, LastPaymentMethod, Policy, Report} from '@src/types/onyx';
 import {translateLocal} from '../../utils/TestHelper';
 import waitForBatchedUpdatesWithAct from '../../utils/waitForBatchedUpdatesWithAct';
 
@@ -191,9 +191,10 @@ type OnyxSetupParams = {
     bankAccountList?: BankAccountList;
     lastPaymentMethod?: LastPaymentMethod;
     userWallet?: {tierName?: ValueOf<typeof CONST.WALLET.TIER_NAME>};
+    betas?: Beta[];
 };
 
-async function setupOnyxState({report, chatReport, policy, bankAccountList, lastPaymentMethod, userWallet}: OnyxSetupParams) {
+async function setupOnyxState({report, chatReport, policy, bankAccountList, lastPaymentMethod, userWallet, betas}: OnyxSetupParams) {
     await act(async () => {
         await Onyx.merge(ONYXKEYS.SESSION, {accountID: ACCOUNT_ID, email: ACCOUNT_LOGIN});
         await Onyx.merge(ONYXKEYS.PERSONAL_DETAILS_LIST, {
@@ -217,6 +218,9 @@ async function setupOnyxState({report, chatReport, policy, bankAccountList, last
         }
         if (userWallet) {
             await Onyx.merge(ONYXKEYS.USER_WALLET, userWallet);
+        }
+        if (betas) {
+            await Onyx.merge(ONYXKEYS.BETAS, betas);
         }
     });
 }
@@ -288,7 +292,7 @@ describe('SettlementButton', () => {
 
             await waitForBatchedUpdatesWithAct();
 
-            expect(screen.getByText(translateLocal('iou.payElsewhere', {formattedAmount: '$100.00'}))).toBeTruthy();
+            expect(screen.getByText(translateLocal('iou.payElsewhere', '$100.00'))).toBeTruthy();
         });
 
         it('shows "Pay $X" (settlePayment) by default with a preferred payment method', async () => {
@@ -318,7 +322,7 @@ describe('SettlementButton', () => {
 
             await waitForBatchedUpdatesWithAct();
 
-            expect(screen.getByText(translateLocal('iou.settlePayment', {formattedAmount: '$100.00'}))).toBeTruthy();
+            expect(screen.getByText(translateLocal('iou.settlePayment', '$100.00'))).toBeTruthy();
         });
     });
 
@@ -424,7 +428,7 @@ describe('SettlementButton', () => {
 
             await waitForBatchedUpdatesWithAct();
 
-            expect(screen.getByText(translateLocal('iou.settlePayment', {formattedAmount: '$100.00'}))).toBeTruthy();
+            expect(screen.getByText(translateLocal('iou.settlePayment', '$100.00'))).toBeTruthy();
             expect(screen.getByText(translateLocal('paymentMethodList.bankAccountLastFour', '9876'))).toBeTruthy();
         });
 
@@ -569,7 +573,7 @@ describe('SettlementButton', () => {
 
             await waitForBatchedUpdatesWithAct();
 
-            expect(screen.getByText(translateLocal('iou.settlePayment', {formattedAmount: '$100.00'}))).toBeTruthy();
+            expect(screen.getByText(translateLocal('iou.settlePayment', '$100.00'))).toBeTruthy();
         });
 
         it('shows bank from formattedPaymentMethods when achAccount lacks accountNumber but hasIntentToPay', async () => {
@@ -704,6 +708,7 @@ describe('SettlementButton', () => {
                     },
                 }),
                 bankAccountList: createBankAccountList('4444'),
+                betas: [CONST.BETAS.PAY_INVOICE_VIA_EXPENSIFY],
             });
 
             render(
@@ -717,7 +722,7 @@ describe('SettlementButton', () => {
 
             await waitForBatchedUpdatesWithAct();
 
-            expect(screen.getByText(translateLocal('iou.settlePayment', {formattedAmount: '$100.00'}))).toBeTruthy();
+            expect(screen.getByText(translateLocal('iou.settlePayment', '$100.00'))).toBeTruthy();
             expect(screen.getByText(translateLocal('iou.invoiceBusinessBank', '4444'))).toBeTruthy();
         });
 
@@ -744,6 +749,7 @@ describe('SettlementButton', () => {
                     },
                 }),
                 bankAccountList: createPersonalBankAccount('5555'),
+                betas: [CONST.BETAS.PAY_INVOICE_VIA_EXPENSIFY],
             });
 
             render(
@@ -831,7 +837,7 @@ describe('SettlementButton', () => {
 
             await waitForBatchedUpdatesWithAct();
 
-            expect(screen.getByText(translateLocal('iou.payElsewhere', {formattedAmount: ''}))).toBeTruthy();
+            expect(screen.getByText(translateLocal('iou.payElsewhere', ''))).toBeTruthy();
         });
 
         it('shows short form pay button when onlyShowPayElsewhere and shouldUseShortForm are true', async () => {
@@ -896,11 +902,11 @@ describe('SettlementButton', () => {
 
             expect(screen.queryByText(translateLocal('common.wallet'))).toBeNull();
 
-            const payButton = screen.getByText(translateLocal('iou.settlePayment', {formattedAmount: '$100.00'}));
+            const payButton = screen.getByText(translateLocal('iou.settlePayment', '$100.00'));
             fireEvent.press(payButton);
             await waitForBatchedUpdatesWithAct();
 
-            expect(screen.queryByText(translateLocal('iou.settleWallet', {formattedAmount: ''}))).toBeNull();
+            expect(screen.queryByText(translateLocal('iou.settleWallet', ''))).toBeNull();
         });
 
         it('renders payment button for invoice report', async () => {
@@ -929,7 +935,7 @@ describe('SettlementButton', () => {
 
             await waitForBatchedUpdatesWithAct();
 
-            expect(screen.getByText(translateLocal('iou.settlePayment', {formattedAmount: '$100.00'}))).toBeTruthy();
+            expect(screen.getByText(translateLocal('iou.settlePayment', '$100.00'))).toBeTruthy();
         });
 
         it('does not show payment options when shouldHidePaymentOptions is true without approve button', async () => {
