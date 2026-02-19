@@ -909,6 +909,34 @@ describe('SettlementButton', () => {
             expect(screen.queryByText(translateLocal('iou.settleWallet', ''))).toBeNull();
         });
 
+        it('shows wallet option in dropdown for IOU reports with personal bank account', async () => {
+            const iouReport = createIOUReport();
+
+            await setupOnyxState({
+                report: iouReport,
+                chatReport: createChatReport(),
+                bankAccountList: createPersonalBankAccount(),
+                userWallet: {tierName: CONST.WALLET.TIER_NAME.GOLD},
+            });
+
+            render(
+                <SettlementButtonWrapper>
+                    <SettlementButton
+                        {...defaultProps}
+                        iouReport={iouReport}
+                    />
+                </SettlementButtonWrapper>,
+            );
+
+            await waitForBatchedUpdatesWithAct();
+
+            const payButton = screen.getByText(translateLocal('iou.settlePayment', '$100.00'));
+            fireEvent.press(payButton);
+            await waitForBatchedUpdatesWithAct();
+
+            expect(screen.getByText(translateLocal('iou.settleWallet', ''))).toBeTruthy();
+        });
+
         it('renders payment button for invoice report', async () => {
             const invoiceReport = createInvoiceReport();
 
@@ -961,6 +989,77 @@ describe('SettlementButton', () => {
             await waitForBatchedUpdatesWithAct();
 
             expect(screen.queryByText(translateLocal('iou.approve', {formattedAmount: '$100.00'}))).toBeNull();
+        });
+
+        it('filters out partially setup bank accounts from invoice payment options', async () => {
+            const invoiceReport = createInvoiceReport();
+
+            const openAccountID = 11111;
+            const setupAccountID = 22222;
+            const bankAccountListWithPartial: BankAccountList = {
+                [openAccountID]: {
+                    methodID: openAccountID,
+                    bankCurrency: CONST.CURRENCY.USD,
+                    bankCountry: 'US',
+                    title: 'Open Business Account',
+                    description: 'Account ending in 1111',
+                    accountData: {
+                        bankAccountID: openAccountID,
+                        type: CONST.BANK_ACCOUNT.TYPE.BUSINESS,
+                        state: CONST.BANK_ACCOUNT.STATE.OPEN,
+                        accountNumber: '000001111',
+                        routingNumber: '123456789',
+                        addressName: 'Open Account',
+                    },
+                },
+                [setupAccountID]: {
+                    methodID: setupAccountID,
+                    bankCurrency: CONST.CURRENCY.USD,
+                    bankCountry: 'US',
+                    title: 'Setup Business Account',
+                    description: 'Account ending in 2222',
+                    accountData: {
+                        bankAccountID: setupAccountID,
+                        type: CONST.BANK_ACCOUNT.TYPE.BUSINESS,
+                        state: CONST.BANK_ACCOUNT.STATE.SETUP,
+                        accountNumber: '000002222',
+                        routingNumber: '123456789',
+                        addressName: 'Setup Account',
+                    },
+                },
+            } as BankAccountList;
+
+            await setupOnyxState({
+                report: invoiceReport,
+                chatReport: createChatReport({
+                    chatType: CONST.REPORT.CHAT_TYPE.INVOICE,
+                    invoiceReceiver: {
+                        type: CONST.REPORT.INVOICE_RECEIVER_TYPE.BUSINESS,
+                        policyID: POLICY_ID,
+                    },
+                }),
+                policy: createTestPolicy(),
+                bankAccountList: bankAccountListWithPartial,
+                betas: [CONST.BETAS.PAY_INVOICE_VIA_EXPENSIFY],
+            });
+
+            render(
+                <SettlementButtonWrapper>
+                    <SettlementButton
+                        {...defaultProps}
+                        iouReport={invoiceReport}
+                    />
+                </SettlementButtonWrapper>,
+            );
+
+            await waitForBatchedUpdatesWithAct();
+
+            const payButton = screen.getByText(translateLocal('iou.settlePayment', '$100.00'));
+            fireEvent.press(payButton);
+            await waitForBatchedUpdatesWithAct();
+
+            expect(screen.getByText('Open Business Account')).toBeTruthy();
+            expect(screen.queryByText('Setup Business Account')).toBeNull();
         });
     });
 
